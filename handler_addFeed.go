@@ -9,7 +9,7 @@ import (
 	"github.com/ranckor96/gator/internal/database"
 )
 
-func handlerAddFeed(s *state, cmd command) error {
+func handlerAddFeed(s *state, cmd command, user database.User) error {
 	if len(cmd.Args) != 2 {
 		return fmt.Errorf("usage: %s <name> <url>", cmd.Name)
 	}
@@ -37,7 +37,7 @@ func handlerAddFeed(s *state, cmd command) error {
 		return fmt.Errorf("couldn't create feed: %w", err)
 	}
 
-	_, err = followHelper(s, feedURL)
+	_, err = feedFollow(s, feedURL, user)
 	if err != nil {
 		return err
 	}

@@ -9,13 +9,13 @@ import (
 	"github.com/ranckor96/gator/internal/database"
 )
 
-func handlerFollow(s *state, cmd command) error {
+func handlerFollow(s *state, cmd command, user database.User) error {
 	if len(cmd.Args) != 1 {
 		return fmt.Errorf("usage: %s <url>", cmd.Name)
 	}
 
 	feedURL := cmd.Args[0]
-	feedFollow, err := followHelper(s, feedURL)
+	feedFollow, err := feedFollow(s, feedURL, user)
 	if err != nil {
 		return err
 	}
@@ -30,15 +30,10 @@ func printFeedFollow(feedFollow database.CreateFeedFollowRow) {
 	fmt.Printf(" * User Name:	%v\n", feedFollow.UserName)
 }
 
-func followHelper(s *state, feedURL string) (database.CreateFeedFollowRow, error) {
+func feedFollow(s *state, feedURL string, user database.User) (database.CreateFeedFollowRow, error) {
 	feed, err := s.db.GetFeed(context.Background(), feedURL)
 	if err != nil {
 		return database.CreateFeedFollowRow{}, fmt.Errorf("couldn't find feed: %w", err)
-	}
-
-	user, err := s.db.GetUser(context.Background(), s.cfg.CurrentUserName)
-	if err != nil {
-		return database.CreateFeedFollowRow{}, fmt.Errorf("couldn't find user: %w", err)
 	}
 
 	feedFollowID := uuid.New()
